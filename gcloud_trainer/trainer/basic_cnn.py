@@ -7,13 +7,19 @@ argparser = ArgumentParser()
 argparser.add_argument('-d', '--data-file', help='The path to the data file to load')
 argparser.add_argument('-c', '--categories-file', help='The path to the categories file to load')
 argparser.add_argument('-m', '--model-name', help='The name of the model to save')
-argparser.add_argument('-l', '--conv-layers', help='The number of convolutional layers', default=6)
-argparser.add_argument('-f', '--filters', help='The number of filters in the convolutional layers', default=64)
-argparser.add_argument('-k', '--kernel-size', help='The size of the filters in the convolutional layers', nargs=2, default=[3, 3])
-argparser.add_argument('-p', '--pool-size', help='The size of the pooling window', nargs=2, default=[2, 2])
-argparser.add_argument('-s', '--dense-layer-size', help='The number of neurons in the final fully connected layer', default=64)
+argparser.add_argument('-l', '--conv-layers', help='The number of convolutional layers',
+    type=int, default=6)
+argparser.add_argument('-f', '--filters', help='The number of filters in the convolutional layers',
+    type=int, default=64)
+argparser.add_argument('-k', '--kernel-size', help='The size of the filters in the convolutional layers',
+    nargs=2, default=[3, 3], type=int)
+argparser.add_argument('-p', '--pool-size', help='The size of the pooling window',
+    nargs=2, default=[2, 2], type=int)
+argparser.add_argument('-s', '--dense-layer-size', help='The number of neurons in the final fully connected layer',
+    type=int, default=64)
+argparser.add_argument('-r', '--dropout-rate', help='Add a dropout rate', type=float, default=0.0)
 
-def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_size):
+def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate):
     """This function constructs a simple CNN. The input layer is implicit
     based on the input data.
 
@@ -25,13 +31,14 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
         k_size - The size of the convolutional filters, must be tuple (x, y)
         p_size - The size of the max pooling window, must be tuple (x, y)
         d_size - The number of neurons in the final fully connected layer
+        do_rate - The dropout rate in the fully connected layer
     
     Each convolutional layer has the same number and size of filters, and each
     MaxPooling "layer" has the same pool size."""
 
     msg = 'This is a network with {} convolutional layers, each with {} filters '.format(n_conv_layers, n_filters)
     msg += 'of size {} and each followed by MaxPooling with a pool size of {} '.format(k_size, p_size)
-    msg += 'followed by a fully connected dense layer with {} neurons'.format(d_size)
+    msg += 'followed by a fully connected dense layer with a dropout rate of {} with {} neurons'.format(do_rate, d_size)
     print(msg)
     model = Sequential()
 
@@ -49,12 +56,14 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
     model.add(Flatten())
     model.add(Dense(d_size))
     model.add(Activation('relu'))
-    model.add(Dropout(0.5))
+
+    # Add dropout
+    if do_rate:
+        model.add(Dropout(do_rate))
 
     # Output Layer
     model.add(Dense(len(categories)))
     model.add(Activation('softmax'))
-    #model.add(Activation('sigmoid'))
 
     # Compile
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -70,8 +79,9 @@ def main():
     k_size = tuple(args.kernel_size)
     p_size = tuple(args.pool_size)
     d_size = args.dense_layer_size
+    do_rate = args.dropout_rate
     
-    model = build_model(images, categories, n_conv_layers, n_filters, k_size, p_size, d_size)
+    model = build_model(images, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate)
     print(model.summary())
 
 if __name__ == "__main__":
