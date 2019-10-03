@@ -1,7 +1,8 @@
 from . import utils
 from argparse import ArgumentParser
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Flatten, Dropout
+from tensorflow.keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Flatten, Dropout, BatchNormalization
 
 argparser = ArgumentParser()
 argparser.add_argument('-d', '--data-file', help='The path to the data file to load')
@@ -18,8 +19,9 @@ argparser.add_argument('-p', '--pool-size', help='The size of the pooling window
 argparser.add_argument('-s', '--dense-layer-size', help='The number of neurons in the final fully connected layer',
     type=int, default=64)
 argparser.add_argument('-r', '--dropout-rate', help='Add a dropout rate', type=float, default=0.0)
+argparser.add_argument('-lr', '--learning-rate', help='The learning rate', type=float, default=0.001)
 
-def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate):
+def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate, lrate):
     """This function constructs a simple CNN. The input layer is implicit
     based on the input data.
 
@@ -38,23 +40,26 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
 
     msg = 'This is a network with {} convolutional layers, each with {} filters '.format(n_conv_layers, n_filters)
     msg += 'of size {} and each followed by MaxPooling with a pool size of {} '.format(k_size, p_size)
-    msg += 'followed by a fully connected dense layer with a dropout rate of {} with {} neurons'.format(do_rate, d_size)
+    msg += 'followed by a fully connected dense layer with a dropout rate of {} with {} neurons.'.format(do_rate, d_size)
+    msg += ' This network will be trained with learning_rate={}'.format(lrate)
     print(msg)
     model = Sequential()
 
     # Build convolutional layers
     for i in range(0, n_conv_layers):
         if i == 0:
-            model.add(Conv2D(n_filters, k_size, input_shape=data.shape[1:]))
+            model.add(Conv2D(32, k_size, padding='same', input_shape=data.shape[1:]))
         else:
-            model.add(Conv2D(n_filters, k_size))
+            model.add(Conv2D(n_filters, k_size, padding='same'))
 
+        model.add(BatchNormalization())
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=p_size))
 
     # Dense layer followed by output layer
     model.add(Flatten())
     model.add(Dense(d_size))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
 
     # Add dropout
@@ -66,7 +71,8 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
     model.add(Activation('softmax'))
 
     # Compile
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    adam_optimizer = Adam(lr=lrate)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=adam_optimizer, metrics=['accuracy'])
 
     return model
 
@@ -80,8 +86,9 @@ def main():
     p_size = tuple(args.pool_size)
     d_size = args.dense_layer_size
     do_rate = args.dropout_rate
+    lrate = args.learning_rate
     
-    model = build_model(images, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate)
+    model = build_model(images, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate, lrate)
     print(model.summary())
 
 if __name__ == "__main__":

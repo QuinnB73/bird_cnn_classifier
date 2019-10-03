@@ -5,8 +5,8 @@ from ..gcloud_trainer.trainer import utils
 from cv2 import cv2
 from argparse import ArgumentParser
 
-IMG_SIZE = 200
-NUMPY_ARCHIVE = 'training_data.npz'
+IMG_SIZE = 300
+NUMPY_ARCHIVE = 'training_data_300.npz'
 
 argparser = ArgumentParser()
 argparser.add_argument('-d', '--data-dir', help='Load, preprocess, and save data')

@@ -52,6 +52,7 @@ def main():
     categories_path = training_config['categories_path']
     bucket_path = training_config['bucket_path']
     model_name = training_config['model_base_name']
+    learning_rate = training_config['learning_rate']
     dropout_rate_str = str(dropout_rate).split('.')[1]
     dropout_rate_str += '0' if len(dropout_rate_str) == 1 else ''
     model_name += '_l{}_f{}_k{}_p{}_d{}_r{}_{}'.format(num_convolutional_layers, num_filters,
@@ -61,7 +62,7 @@ def main():
     images, labels = utils.load_data(data_path)
     categories = utils.load_categories(categories_path)
     model = basic_cnn.build_model(images, categories, num_convolutional_layers, num_filters,
-        kernel_size, pool_size, dense_layer_size, dropout_rate)
+        kernel_size, pool_size, dense_layer_size, dropout_rate, learning_rate)
 
     # Train the model
     model = train_model(model, images, labels, training_config)
