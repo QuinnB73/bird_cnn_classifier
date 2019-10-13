@@ -20,20 +20,28 @@ argparser.add_argument('-s', '--dense-layer-size', help='The number of neurons i
     type=int, default=64)
 argparser.add_argument('-r', '--dropout-rate', help='Add a dropout rate', type=float, default=0.0)
 argparser.add_argument('-lr', '--learning-rate', help='The learning rate', type=float, default=0.001)
+argparser.add_argument('-bn', '--batch-normalization', help='Add batch normalization',
+    nargs='?', const=True, default=False)
+argparser.add_argument('-is', '--image-size', help='The dimension of the image')
+argparser.add_argument('-sf', '--small-first', help='The first CNN layer will have 32 filters',
+    nargs='?', const=True, default=False)
 
-def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate, lrate):
+def build_model(tensor_shape, num_categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate, lrate, bn, sf):
     """This function constructs a simple CNN. The input layer is implicit
     based on the input data.
 
     Inputs:
-        data - The training data (what is important here is the shape of the tensor)
-        categories - The categories which defines the number of output neurons
+        tensor_shape - The shape of the input tensor (x, y, c)
+        num_categories - The number of categories
         n_conv_layers - The number of convolutional layers
         n_filters - The number of convolutional filters per convolutional layer
         k_size - The size of the convolutional filters, must be tuple (x, y)
         p_size - The size of the max pooling window, must be tuple (x, y)
         d_size - The number of neurons in the final fully connected layer
         do_rate - The dropout rate in the fully connected layer
+        lrate - The learning rate
+        bn - Enable batch normalization
+        sf - Use 32 filters in the first CNN layer (instead of n_filters)
     
     Each convolutional layer has the same number and size of filters, and each
     MaxPooling "layer" has the same pool size."""
@@ -48,18 +56,21 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
     # Build convolutional layers
     for i in range(0, n_conv_layers):
         if i == 0:
-            model.add(Conv2D(32, k_size, padding='same', input_shape=data.shape[1:]))
+            first_filters = 32 if sf else n_filters
+            model.add(Conv2D(first_filters, k_size, padding='same', input_shape=tensor_shape))
         else:
             model.add(Conv2D(n_filters, k_size, padding='same'))
 
-        model.add(BatchNormalization())
+        if bn:
+            model.add(BatchNormalization())
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=p_size))
 
     # Dense layer followed by output layer
     model.add(Flatten())
     model.add(Dense(d_size))
-    model.add(BatchNormalization())
+    if bn:
+        model.add(BatchNormalization())
     model.add(Activation('relu'))
 
     # Add dropout
@@ -67,7 +78,7 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
         model.add(Dropout(do_rate))
 
     # Output Layer
-    model.add(Dense(len(categories)))
+    model.add(Dense(num_categories))
     model.add(Activation('softmax'))
 
     # Compile
@@ -78,7 +89,11 @@ def build_model(data, categories, n_conv_layers, n_filters, k_size, p_size, d_si
 
 def main():
     args = argparser.parse_args()
-    images, _ = utils.load_data(args.data_file)
+    if args.image_size:
+        shape = (args.image_size, args.image_size, 3)
+    else:
+        images, _ = utils.load_data(args.data_file)
+        shape = images.shape[:1]
     categories = utils.load_categories(args.categories_file)
     n_conv_layers = args.conv_layers
     n_filters = args.filters
@@ -87,8 +102,12 @@ def main():
     d_size = args.dense_layer_size
     do_rate = args.dropout_rate
     lrate = args.learning_rate
+    bn = args.batch_normalization
+    sf = args.small_first
+
     
-    model = build_model(images, categories, n_conv_layers, n_filters, k_size, p_size, d_size, do_rate, lrate)
+    model = build_model(shape, len(categories), n_conv_layers, n_filters, k_size,
+        p_size, d_size, do_rate, lrate, bn, sf)
     print(model.summary())
 
 if __name__ == "__main__":

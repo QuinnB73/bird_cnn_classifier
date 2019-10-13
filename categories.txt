@@ -1,0 +1,12 @@
+black-capped-chickadee
+downy-woodpecker
+dark-eyed-junco
+american-goldfinch
+song-sparrow
+brown-headed-cowbird
+blue-jay
+white-breasted-nuthatch
+mourning-dove
+northern-cardinal
+red-breasted-nuthatch
+red-winged-blackbird

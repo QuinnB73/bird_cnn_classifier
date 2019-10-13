@@ -2,6 +2,7 @@ import numpy as np
 import re
 import sys
 import yaml
+import tarfile
 from google.cloud import storage
 
 NUMPY_ARCHIVE = 'training_data.npz'
@@ -62,15 +63,30 @@ def load_data(data_file):
     print('Successfully loaded data from {}'.format(data_file))
     return images, labels
 
+def unzip_data(data_file):
+    """This function unzips a .tar.gz and extracts it to a directory,
+    returning that directory. If the file is in a GCloud bucket, this
+    function will download it first."""
+    if 'gs://' in data_file:
+        data_file = download_file(data_file, None)
+    
+    with tarfile.open(data_file, 'r:gz') as data_tar:
+        data_tar.extractall()
+
+    unzipped_name = re.search('[^\.]*', data_file).group(0)
+    return unzipped_name
+
 def download_file(remote_fname, local_fname):
     """This function downloads the file from the given GCloud bucket URL and returns
     the name of the file that the content was downloaded to.
 
     The input URL should be of the format gs://<bucket_name>/path/to/file."""
-    print('Receved GCloud bucket path {}'.format(remote_fname))
+    print('Received GCloud bucket path {}'.format(remote_fname))
 
     bucket_name = re.search('//(.*?)/', remote_fname).group(1)
     path_to_file = re.search('//.*?/(.*)', remote_fname).group(1)
+    if not local_fname:
+        local_fname = re.search('[^/]+\.tar\.gz', remote_fname).group(0)
     
     print('Extracted bucket name {} and path {} from URL {}'.format(bucket_name, path_to_file, remote_fname))
 
@@ -82,6 +98,7 @@ def download_file(remote_fname, local_fname):
         blob.download_to_filename(local_fname)
         
         print('Successfully downloaded data from GCloud bucket {} to {}'.format(remote_fname, local_fname))
+        return local_fname
     except Exception as e:
         print('Error downloading data from GCloud bucket {}: {}'.format(remote_fname, e))
         sys.exit(2)

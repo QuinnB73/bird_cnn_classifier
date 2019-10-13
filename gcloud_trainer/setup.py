@@ -1,12 +1,13 @@
 from setuptools import find_packages
 from setuptools import setup
 
-REQUIRED_PACKAGES = ['google-cloud-storage>=1.19', 'numpy>=1.16', 'tensorflow>=1.14', 'pyyaml>=5.1']
+REQUIRED_PACKAGES = ['google-cloud-storage==1.19', 'numpy==1.16',
+    'pyyaml==5.1', 'Pillow==6.0.0']
 
 setup(
     name='trainer',
     version='0.1',
-    install_packages=REQUIRED_PACKAGES,
+    install_requires=REQUIRED_PACKAGES,
     packages=find_packages(),
     include_package_data=True,
     description='Custom training application package'

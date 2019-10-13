@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-REQUIRED_PACKAGES = ['google-cloud-storage>=1.19', 'numpy>=1.16']
+REQUIRED_PACKAGES = ['google-cloud-storage>=1.19', 'numpy>=1.16', 'Pillow>=6.0']
 
 setup(
     name='trainer',

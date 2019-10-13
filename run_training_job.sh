@@ -13,7 +13,7 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   --runtime-version 1.14 \
   --job-dir $JOB_DIR \
   --scale-tier custom \
-  --master-machine-type standard_p100 \
+  --master-machine-type complex_model_m_p100 \
   --stream-logs \
   -- \
   --config-file gs://bird-classifier-cnn/config/cloud_config_$CONFIG_NUM.yml
