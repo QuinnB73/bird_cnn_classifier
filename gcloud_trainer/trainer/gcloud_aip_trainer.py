@@ -55,7 +55,7 @@ def augmented_train_model(model, data_path, categories, image_size, training_con
         subset='training')
     validation_gen = datagen.flow_from_directory(directory=data_path, target_size=(image_size, image_size),
         color_mode='rgb', classes=categories, class_mode='sparse', shuffle=True, batch_size=batch_size,
-        subset='training')
+        subset='validation')
 
     model.fit_generator(training_gen, steps_per_epoch=num_per_epoch, epochs=num_epochs,
         callbacks=[lr_plateau_cb], validation_data=validation_gen, validation_steps=num_per_valid,
