@@ -31,8 +31,6 @@ def preprocess_data(data_dir, categories, num_to_show, image_size, num_images):
 
     The shuffled training images and their labels are returned."""
 
-    datagen = ImageDataGenerator(horizontal_flip=True, height_shift_range=0.2, width_shift_range=0.2,
-        rotation_range=20, rescale=1./255)
     training_data = []
 
     for category in categories:
@@ -40,35 +38,25 @@ def preprocess_data(data_dir, categories, num_to_show, image_size, num_images):
         path = os.path.join(data_dir, category)
         print(f'Beginning to preprocess data in {path}')
 
-        datagen_it = datagen.flow_from_directory('/Users/quinnbudan/neural_nets/scraper/processed_images/', target_size=(image_size, image_size),
-            color_mode='rgb', classes=categories, class_mode='sparse', shuffle=True, batch_size=BATCH_SIZE)
+        for img in os.listdir(path):
+            try:
+                img_array = cv2.imread(os.path.join(path, img), cv2.IMREAD_COLOR)
+                img_array = cv2.resize(img_array, (image_size, image_size))
+                img_array = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
+                training_data.append([img_array, class_num])
+            except Exception:
+                pass
 
-        for i in range(num_images):
-            batch = datagen_it.next()
-            for img in batch[0]:
-                pyplot.imshow(img)
-                pyplot.show()
-            break
-        break
+    if num_to_show != 0:
+        while num_to_show > 0:
+            num = random.randint(0, len(training_data))
+            img_array, _ = training_data[num]
+            cv2.imshow('image', img_array)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            num_to_show -= 1
 
-        # for img in os.listdir(path):
-        #     try:
-        #         img_array = cv2.imread(os.path.join(path, img), cv2.IMREAD_COLOR)
-        #         img_array = cv2.resize(img_array, (image_size, image_size))
-        #         training_data.append([img_array, class_num])
-        #     except Exception:
-        #         pass
-
-    # if num_to_show != 0:
-    #     while num_to_show > 0:
-    #         num = random.randint(0, len(training_data))
-    #         img_array, _ = training_data[num]
-    #         cv2.imshow('image', img_array)
-    #         cv2.waitKey(0)
-    #         cv2.destroyAllWindows()
-    #         num_to_show -= 1
-
-    # random.shuffle(training_data)
+    random.shuffle(training_data)
     images = []
     labels = []
 
@@ -107,7 +95,7 @@ def main():
 
     num_to_show = int(args.num_random) if args.num_random else 0
     images, labels = preprocess_data(data_dir, categories, num_to_show, image_size, num_images)
-    # save_training_data_numpy(images, labels)
+    save_training_data_numpy(images, labels)
 
 if __name__ == "__main__":
     main()

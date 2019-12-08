@@ -103,15 +103,15 @@ def download_file(remote_fname, local_fname):
         print('Error downloading data from GCloud bucket {}: {}'.format(remote_fname, e))
         sys.exit(2)
 
-def save_model_to_bucket(bucket_path, model_file_name):
-    """This function uploads the saved model to the provided
+def save_file_to_bucket(bucket_path, file_name):
+    """This function uploads the file to the provided
     GCloud bucket under the same name."""
-    print('Will attempt to upload {} to {}'.format(model_file_name,  bucket_path))
+    print('Will attempt to upload {} to {}'.format(file_name,  bucket_path))
 
     bucket_name = re.search('//(.*?)/', bucket_path).group(1)
     path_to_file = re.search('//.*?/(.*)', bucket_path).group(1)
 
-    path_to_file += '/{}'.format(model_file_name)
+    path_to_file += '/{}'.format(file_name)
 
     retries = 0
     while retries < 3:
@@ -120,9 +120,9 @@ def save_model_to_bucket(bucket_path, model_file_name):
             client = storage.Client()
             bucket = client.get_bucket(bucket_name)
             blob = bucket.blob(path_to_file, chunk_size=26214400)
-            blob.upload_from_filename(model_file_name)
+            blob.upload_from_filename(file_name)
         except Exception as e:
-            print('Error uploading {} to {}: {}'.format(model_file_name, bucket_path, e))
+            print('Error uploading {} to {}: {}'.format(file_name, bucket_path, e))
             sys.exit(2)
 
     print('Successfully uploaded {} to {}'.format(path_to_file, bucket_path))
