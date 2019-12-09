@@ -7,12 +7,15 @@ argparser.add_argument('-m', '--model', help='The model to convert')
 argparser.add_argument('-o', '--output-file', help='The file to save the tflite model to')
 
 def do_convert(model_path):
+    """ This function converts a Keras model to a TensorFlow Lite
+    model."""
     converter = tf.lite.TFLiteConverter.from_keras_model_file(model_path)
     tflite_model = converter.convert()
 
     return tflite_model
 
 def save_lite_model(tflite_model, output_filename):
+    """ This function saves the TensorFlow Lite model."""
     with open(output_filename, 'wb') as output_file:
         output_file.write(tflite_model)
 
