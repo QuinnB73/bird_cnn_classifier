@@ -15,7 +15,10 @@ argparser.add_argument(
     help='path to the output directory of the images'
 )
 
-def downloaded_images(urls_dir, images_dir):
+def download_images(urls_dir, images_dir):
+    """ This function downloads images from the URLs into the provided
+    images dir."""
+
     bird_urls = read_urls_file(urls_dir)
 
     for bird, urls in bird_urls.items():
@@ -51,6 +54,8 @@ def downloaded_images(urls_dir, images_dir):
         print(f'Successfully downloaded {success} images for {bird}. Unable to download {error_amount} images.')
 
 def read_urls_file(urls_dir):
+    """ This function reads the URL files in the provided directory."""
+
     bird_urls = {}
     for _, __, fileList in os.walk(urls_dir):
         for fileName in fileList:
@@ -65,7 +70,7 @@ def read_urls_file(urls_dir):
 
 def main():
     args = argparser.parse_args()
-    downloaded_images(args.urls_dir, args.images_dir)
+    download_images(args.urls_dir, args.images_dir)
 
 if __name__ == "__main__":
     main()

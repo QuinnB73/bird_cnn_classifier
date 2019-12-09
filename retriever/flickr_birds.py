@@ -4,7 +4,6 @@ import os
 from argparse import ArgumentParser
 
 MAX_PHOTOS = 1200
-#BIRDS = ['black-capped chickadee']
 BIRDS = [
     'black-capped chickadee'
     'downy woodpecker',
@@ -15,7 +14,6 @@ BIRDS = [
     'american goldfinch',
     'northern cardinal',
     'red-breasted nuthatch',
-    #'hairy woodpecker',
     'european starling',
     'house sparrow',
     'house finch',
@@ -37,6 +35,8 @@ argparser = ArgumentParser()
 argparser.add_argument('-o', '--output-dir', help='The output directory for images of birds')
 
 def get_url(etree_fphoto):
+    """ This function builds a Flickr URL for an image based on its metadata."""
+
     photo_id = etree_fphoto.get('id')
     server = etree_fphoto.get('server')
     secret = etree_fphoto.get('secret')
@@ -44,6 +44,8 @@ def get_url(etree_fphoto):
     return f'https://farm{farm}.staticflickr.com/{server}/{photo_id}_{secret}.jpg'
 
 def save_url_file_for_bird(flickr, keyword, output_dir):
+    """ This function writes all built URLs to a file for a given keyword."""
+
     filename = f'{output_dir}/{keyword}.urls.txt'
     filename = filename.replace(' ', '-')
     print(f'Getting URLs for {keyword} and saving to file {filename}')
