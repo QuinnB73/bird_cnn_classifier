@@ -11,6 +11,11 @@ because those scripts run on the Google Cloud AI Platform, which does not
 support Python 3.
 
 It also contains the scripts used to build the dataset in the retriever
-submodule. Supporting scripts such as a script to compute statistics for
-K-Fold Cross Validation results or to provide a sanity check on the
-validity of the network are included at the top level.
+submodule. Note that this submodule requires having the Flickr API key
+environment variables set to work properly. Supporting scripts such as a
+script to compute statistics for K-Fold Cross Validation results or to
+provide a sanity check on the validity of the network are included at the top
+level.
+
+The example_configs directory contains example YAML configuration files to
+use to train the network. 
