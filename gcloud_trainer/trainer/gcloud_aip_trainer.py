@@ -1,5 +1,3 @@
-## TODO: Add k-fold training, validation, and then testing regime
-
 import numpy as np
 import sys, os, random, shutil, subprocess
 import tensorflow as tf
