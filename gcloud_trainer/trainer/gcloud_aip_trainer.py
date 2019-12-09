@@ -12,8 +12,6 @@ from tensorflow.keras.callbacks import ReduceLROnPlateau
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 
-IMG_SIZE = 200
-
 argparser = ArgumentParser()
 argparser.add_argument('-c', '--config-file', help='The name of the bucket to save the model in')
 argparser.add_argument('-j', '--job-dir', help='GCloud bucket path to save checkpoints') # TODO: Implement checkpoints
