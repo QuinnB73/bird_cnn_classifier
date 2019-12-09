@@ -10,6 +10,8 @@ argparser.add_argument('-d', '--dest-dir', help='The destination directory to pu
 argparser.add_argument('-t', '--target-split', help='The target test/train split, e.g. 0.2', type=float)
 
 def do_split_into_train_and_test(src_dir, train_path, test_path, target_split):
+    """ This function randomly splits the dataset into train and test sets. """
+
     src_files = os.listdir(src_dir)
     train_dirs = []
     test_dirs = []
